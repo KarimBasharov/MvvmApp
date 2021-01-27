@@ -18,6 +18,7 @@ namespace MvvmApp
         {
             InitializeComponent();
         }
+
         protected override async void OnAppearing()
         {
             // создание таблицы, если ее нет

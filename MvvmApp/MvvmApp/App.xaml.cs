@@ -2,6 +2,7 @@
 using MvvmApp.Views;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -10,7 +11,7 @@ namespace MvvmApp
 {
     public partial class App : Application
     {
-        public const string DATABASE_NAME = "friends2.db";
+        public const string DATABASE_NAME = "friends5.mdf";
         public static FriendsAsyncRepository database;
         public static FriendsAsyncRepository Database
         {
@@ -18,9 +19,24 @@ namespace MvvmApp
             {
                 if (database == null)
                 {
-                    database = new FriendsAsyncRepository(
-                        Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DATABASE_NAME));
+                    // путь, по которому будет находиться база данных
+                    string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), DATABASE_NAME);
+                    // если база данных не существует (еще не скопирована)
+                    if (!File.Exists(dbPath))
+                    {
+                        // получаем текущую сборку
+                        var assembly = IntrospectionExtensions.GetTypeInfo(typeof(App)).Assembly;
+                        // берем из нее ресурс базы данных и создаем из него поток
+                        using (Stream stream = assembly.GetManifestResourceStream($"HelloApp.{DATABASE_NAME}"))
+                        {
+                            using (FileStream fs = new FileStream(dbPath, FileMode.OpenOrCreate))
+                            {
+                                stream.CopyTo(fs);  // копируем файл базы данных в нужное нам место
+                                fs.Flush();
+                            }
+                        }
+                    }
+                    database = new FriendsAsyncRepository(dbPath);
                 }
                 return database;
             }
