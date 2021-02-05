@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <None Remove="AppData\friends5.mdf" />
+    <None Remove="friends5.mdf" />
   </ItemGroup>
 
   <ItemGroup>
